@@ -28,7 +28,6 @@ if __name__ == "__main__":
 
         # Get network information
         ipaddr, ipbroadcast, ipnetmask, macaddr, ssid = get_addr_info(iface)
-        ssid = "NoCrash Wi-Fi"
         cidr = convert_netmask_to_cidr(ipnetmask)
 
         print("\n[x] Current network information")

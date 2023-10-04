@@ -1,6 +1,6 @@
 # About pySpot
 
-**pySpot** was written to pass through the captive portals in public Wi-Fi networks by hijacjing auttorized IP/MAC addresses.
+**pySpot** was written to pass through the captive portals in public Wi-Fi networks by hijacking authorized IP/MAC addresses.
 
 Be careful, this script needs to be run under Linux (*tested on Kali*)
 
@@ -22,6 +22,8 @@ options:
 ```
 
 You can now choose the interface (required) and specify if you want only MAC spoofing or both MAC and IP spoofing using **--ipspoof** parameter:
+
+Be careful, you must be connected on the captive portals Wi-Fi
 
 ```bash
 $ sudo python3 pySpot.py --iface wlan0 --verbose

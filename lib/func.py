@@ -21,7 +21,7 @@ def check_privileges():
     Check if the script is launched with appropriate permissions
     """
     if not os.environ.get("SUDO_UID") and os.geteuid() != 0:
-        sys.exit("[x] You need to run this script with sudo or as root. Leaving...")
+        sys.exit("[x] You need to run this script with or as root. Leaving...")
 
 
 def convert_netmask_to_cidr(netmask):
@@ -29,13 +29,17 @@ def convert_netmask_to_cidr(netmask):
 
     :param netmask: Wi-Fi interface netmask
     """
-    list_mask = netmask.split(".")
-    processing = list()
+    try:
+        list_mask = netmask.split(".")
+        processing = list()
 
-    for octet in list_mask:
-        processing.append(str(bin(int(octet))).count("1"))
-    
-    return sum(processing)
+        for octet in list_mask:
+            processing.append(str(bin(int(octet))).count("1"))
+        
+        return sum(processing)
+
+    except ValueError:
+        sys.exit("[x] Leaving...")
 
 
 def get_ssid(iface):
@@ -43,8 +47,8 @@ def get_ssid(iface):
     Get Service Set IDentifier (SSID) interface is connected on
     """
     try:
-        output = subprocess.run(f"sudo iwgetid {iface}", shell=True)
-        return output.split('"')[1]
+        output = subprocess.check_output(["sudo", "iwgetid", "-r", iface], shell=False)
+        return output.decode()[:-1]
 
     except Exception:
         return "--"
@@ -97,9 +101,9 @@ def scan_network(network, currentIp):
 
 def hijack_ip_and_mac(iface, ipaddr, ipbroadcast, ipnetmask, macaddr, iphijack):
     # Change MAC Address
-    subprocess.run(f"sudo ifconfig {iface} down", shell=True)
-    subprocess.run(f"sudo ifconfig {iface} hw ether macaddr", shell=True)
-    subprocess.run(f"sudo ifconfig {iface} up", shell=True)
+    subprocess.run(f"ifconfig {iface} down", shell=True)
+    subprocess.run(f"ifconfig {iface} hw ether {macaddr}", shell=True)
+    subprocess.run(f"ifconfig {iface} up", shell=True)
 
     if iphijack:
         # Hijack IP Address
@@ -107,7 +111,7 @@ def hijack_ip_and_mac(iface, ipaddr, ipbroadcast, ipnetmask, macaddr, iphijack):
 
     else:
         # Release and renew IP address with spoofed MAC
-        subprocess.run(f"sudo dhclient -r && sudo dhclient -v {iface}", shell=True)
+        subprocess.run(f"dhclient -r -q && dhclient -v {iface} -q", shell=True)
 
 
 def check_internet_cnx():
